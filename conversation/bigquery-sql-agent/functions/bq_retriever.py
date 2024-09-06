@@ -30,20 +30,39 @@ def retrieve(request):
     return ""
 
 
-def format_search_results(
-    response_pager: discoveryengine_v1.SearchResponse,
-) -> List[Dict]:
+#def format_search_results(
+#    response_pager: discoveryengine_v1.SearchResponse,
+#) -> List[Dict]:
+#    response_pager_dict = MessageToDict(response_pager._pb)
+#    return (
+#        "{response:"
+#        + json.dumps(
+#            [
+#                result["document"]["structData"]
+#                for result in response_pager_dict["results"]
+#            ]
+#        )
+#        + "}"
+#    )
+
+def format_search_results(response_pager: discoveryengine_v1.SearchResponse) -> str:
+    """
+    Formats search results from Discovery Engine into a JSON string.
+
+    Args:
+        response_pager: A SearchResponse object containing search results.
+
+    Returns:
+        A JSON string representing the formatted search results.
+    """
+
     response_pager_dict = MessageToDict(response_pager._pb)
-    return (
-        "{response:"
-        + json.dumps(
-            [
-                result["document"]["structData"]
-                for result in response_pager_dict["results"]
-            ]
-        )
-        + "}"
-    )
+    results_data = [
+        result.get("document", {}).get("structData", {}) 
+        for result in response_pager_dict.get("results", [])
+    ]
+
+    return json.dumps({"response": results_data})
 
 
 def get_search_results(
